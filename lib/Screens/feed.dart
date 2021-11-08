@@ -4,6 +4,8 @@ import 'package:car_pool/CustomViews/post_view.dart';
 import 'package:car_pool/Models/post_model.dart';
 import 'package:flutter/material.dart';
 
+import 'login.dart';
+
 class Feed extends StatefulWidget {
   @override
   _Feed createState() => _Feed();
@@ -74,6 +76,25 @@ class _Feed extends State<Feed>{
               color: Colors.black87,
             ),
           ),
+          actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.search,
+                    size: 26.0,
+                  ),
+                )
+            ),
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: TextButton(onPressed: () { logOut(); },
+                  child:
+                  Text("LogOut"),
+                )
+            ),
+          ],
         ),
         body:SingleChildScrollView(
           child:Flex(
@@ -166,6 +187,31 @@ class _Feed extends State<Feed>{
     }
   }
 
+  Future logOut() async {
+    var result;
 
+    final response = await http.post(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/logout/'),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*"
+      },
+    );
+    final Map<String, dynamic> responseData = json.decode(response.body);
+
+    if(response.statusCode==204){
+      print("Successfully Logout");
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Login(),
+        ),
+      );
+    }
+    else {
+      print(response.statusCode);
+    }
+  }
 
 }

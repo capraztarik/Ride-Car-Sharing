@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:car_pool/Screens/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../Constants.dart';
+import 'feed.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -59,7 +65,7 @@ class _LoginState extends State<Login> {
       sized_box_height=4.0;
     }
     else{
-      login_card_height=MediaQuery.of(context).size.height/2;
+      login_card_height=MediaQuery.of(context).size.height/2.5;
       sized_box_height=20.0;
     }
     return Scaffold(
@@ -112,7 +118,7 @@ buildLogo(BuildContext context) {
 
 }
  buildLoginCard (BuildContext context){
-   if(MediaQuery.of(context).size.height<750 || MediaQuery.of(context).size.width<800){
+   /*if(MediaQuery.of(context).size.height<750 || MediaQuery.of(context).size.width<800){
      return Center(
        child:Card(
          color: Colors.blueGrey,
@@ -124,7 +130,7 @@ buildLogo(BuildContext context) {
          ),
        )
      );
-   }
+   }*/
   return Container(
       width: login_card_width,
       height: login_card_height ,
@@ -136,34 +142,13 @@ buildLogo(BuildContext context) {
         key:_formKey,
         child:Column(
             children: <Widget>[
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email Address',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your e-mail';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    email = value!;
-                  },
-                ),
-              SizedBox(
-                height: sized_box_height,
-              ),
-              TextFormField(
-                keyboardType: TextInputType.visiblePassword,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
+              Expanded(flex:2,
+                child:TextFormField(
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                  suffixIcon: Icon(Icons.remove_red_eye),
+                  prefixIcon: Icon(Icons.email),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -172,94 +157,175 @@ buildLogo(BuildContext context) {
                   return null;
                 },
                 onSaved: (value) {
-                  pass = value!;
+                  email = value!;
                 },
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () { //Develop forget password page TODO
-                    print('Forgotted Password!');
-                  },
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.4),
-                      fontSize: 12.0,
+              ),),
+              Expanded(flex:1,
+                  child:SizedBox(
+                    height: sized_box_height,
+                  ),),
+              Expanded(flex:2,
+                  child:TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock),
+                      suffixIcon: Icon(Icons.remove_red_eye),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: sized_box_height,
-            ),
-            Container(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: MaterialButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        loginUser();
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your password';
                       }
+                      return null;
                     },
-                    color: Colors.blue,
-                    child: Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
+                    onSaved: (value) {
+                      pass = value!;
+                    },
+                  ),),
+              Expanded(flex:1,
+                  child:Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () { //Develop forget password page TODO
+                          print('Forgotted Password!');
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(0.4),
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),),
+              Expanded(flex:1,
+                  child:SizedBox(
+                    height: sized_box_height,
+                  ),),
+              Expanded(flex:3,
+                  child:Container(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    width: double.infinity,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: MaterialButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          loginUser(context);
+                        }
+                      },
+                      color: Colors.blue,
+                      child: Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-            ),
-            SizedBox(
-              height: sized_box_height,
-            ),
-            Divider(
-              color: Colors.black,
-              height: 30,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '''Don't have an account? ''',
-                  style: TextStyle(
-                    color: Colors.black.withOpacity(0.5),
-                    fontSize: 16.0,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SignUp(),
+                  ),),
+              Expanded(flex:1,
+                  child:SizedBox(
+                    height: sized_box_height,
+                  ),),
+              Expanded(flex:1,
+                  child:Divider(
+                    color: Colors.black,
+                    height: 30,
+                  ),),
+              Expanded(flex:1,
+                  child:Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '''Don't have an account? ''',
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.5),
+                          fontSize: 16.0,
+                        ),
                       ),
-                    );
-                  },
-                child: Text('Register Now'),
-          )
-            ],
-          ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUp(),
+                            ),
+                          );
+                        },
+                        child: Text('Register Now'),
+                      )
+                    ],
+                  ),
+              ),
+
         ],
       ),
    ),
    )
   ),);
 }
+Future<Map<String, dynamic>> login(String email, String password) async {
+  var result;
 
-loginUser() {
+  final Map<String, dynamic> loginData = {
+    'user': {
+      'email': email,
+      'password': password
+    }
+  };
+  final response = await http.post(
+    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/login/'),
+    headers:{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Access-Control-Allow-Origin": "*"
+    },
+    body: jsonEncode(loginData),
+  );
+
+  final Map<String, dynamic> responseData = json.decode(response.body);
+
+  if(response.statusCode==200){
+    print("Successfully Login");
+    var userData = responseData['data'];
+    /*User authUser = User.fromJson(userData);*/
+    /*UserPreferences().saveUser(authUser);*/
+    result = {
+      'status': true,
+      'message': 'Successfully registered',
+    };
+  }
+  else {
+    print(response.statusCode);
+    print(response.body);
+    result = {
+      'status': false,
+      'message': 'Registration failed',
+      'data': responseData
+    };
+  }
+
+  return result;
+}
+loginUser(context) {
+
   print(email);
   print(pass);
+  Navigator.pop(context);
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Feed(),
+    ),
+  );
 }
 
 class EmailValidator {

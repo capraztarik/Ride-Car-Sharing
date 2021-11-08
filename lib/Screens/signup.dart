@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'package:car_pool/Constants.dart';
+import 'package:car_pool/Models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'login.dart';
 
@@ -46,20 +50,21 @@ class _SignUpState extends State<SignUp> {
           );
         });
   }
-
-  Future<void> SignUpUser() async {
-
-  }
-
   Widget build(BuildContext context) {
     if(MediaQuery.of(context).size.width<1500){
       SignUp_card_width=MediaQuery.of(context).size.width/2;
+    }
+    else if(MediaQuery.of(context).size.width<850){
+      SignUp_card_width=MediaQuery.of(context).size.width;
     }
     else{
       SignUp_card_width=MediaQuery.of(context).size.width/3;
     }
     if(MediaQuery.of(context).size.height<1200){
       SignUp_card_height=MediaQuery.of(context).size.height/2;
+    }
+    else if(MediaQuery.of(context).size.height<850) {
+      SignUp_card_height=MediaQuery.of(context).size.height;
     }
     else{
       SignUp_card_height=MediaQuery.of(context).size.height/(2.5);
@@ -96,7 +101,6 @@ class _SignUpState extends State<SignUp> {
 
 }
 buildLogo(BuildContext context) {
-
   return Container(
     width: MediaQuery.of(context).size.width/4,
     height: MediaQuery.of(context).size.height/4 ,
@@ -114,7 +118,7 @@ buildLogo(BuildContext context) {
 
 }
 buildSignUpCard (BuildContext context){
-  if(MediaQuery.of(context).size.height<900 || MediaQuery.of(context).size.width<850){
+  /*if(MediaQuery.of(context).size.height<800 || MediaQuery.of(context).size.width<800){
     return Center(
         child:Card(
           color: Colors.blueGrey,
@@ -126,7 +130,7 @@ buildSignUpCard (BuildContext context){
           ),
         )
     );
-  }
+  }*/
   return Container(
     width: SignUp_card_width,
     height: SignUp_card_height ,
@@ -137,8 +141,10 @@ buildSignUpCard (BuildContext context){
           child: new Form(
             key:_signUpKey,
             child:Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                TextFormField(
+                Expanded(flex:2,
+                  child:TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email Address',
@@ -154,123 +160,182 @@ buildSignUpCard (BuildContext context){
                   onSaved: (value) {
                     email = value!;
                   },
-                ),
-                SizedBox(
+                ), ),
+              Expanded(flex:1,
+                child:SizedBox(
                   height: 15,
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: Icon(Icons.remove_red_eye),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your pass';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    pass = value!;
-                  },
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Please type your password again',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: Icon(Icons.remove_red_eye),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your e-mail';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    pass2 = value!;
-                  },
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Container(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: MaterialButton(
-                    onPressed: () {
-                      if (_signUpKey.currentState!.validate()) {
-                        _signUpKey.currentState!.save();
-                        signUpUser();
-                      }
-                    },
-                    color: Colors.blue,
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
+                ), ),
+                Expanded(flex:2,
+                    child: TextFormField(
+                      keyboardType: TextInputType.visiblePassword,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock),
+                        suffixIcon: Icon(Icons.remove_red_eye),
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Divider(
-                  color: Colors.black,
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '''Do you already have an account? ''',
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(0.5),
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Login(),
-                          ),
-                        );
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your pass';
+                        }
+                        return null;
                       },
-                      child: Text('Login Now'),
-                    )
-                  ],
-                ),
+                      onSaved: (value) {
+                        pass = value!;
+                      },
+                    ),),
+                Expanded(flex:1,
+                    child: SizedBox(
+                      height: 15,
+                    ),),
+
+                Expanded(flex:2,
+                    child:TextFormField(
+                      keyboardType: TextInputType.visiblePassword,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Please type your password again',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock),
+                        suffixIcon: Icon(Icons.remove_red_eye),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your e-mail';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        pass2 = value!;
+                      },
+                    ), ),
+                Expanded(flex:1,
+                    child:SizedBox(
+                      height: 15,
+                    ),),
+
+                Expanded(flex:3,
+                    child:Container(
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      width: double.infinity,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: MaterialButton(
+                        onPressed: () {
+                          if (_signUpKey.currentState!.validate()) {
+                            _signUpKey.currentState!.save();
+                            signUpValidations();
+                          }
+                        },
+                        color: Colors.blue,
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ), ),
+                Expanded(flex:1,
+                    child: SizedBox(
+                      height: 15,
+                    ),),
+                Expanded(flex:1,
+                    child:Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '''Do you already have an account? ''',
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(0.5),
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Login(),
+                              ),
+                            );
+                          },
+                          child: Text('Login Now'),
+                        )
+                      ],
+                    ), ),
+
               ],
             ),
           ),
         )
     ),);
 }
+Future<http.Response> signUpUser() async {
+  var result;
 
-void signUpUser() {
+  var body = {
+    "password": pass,
+    "email": email
+  };
+  /*final response = await http.post(
+    Uri.http('ride-share-cs308.herokuapp.com', '/api/users/register/'),
+    headers:{
+      "Accept": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    body: body,
+    encoding: Encoding.getByName("utf-8"),
+  );*/
+  final response = await http.post(
+    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/register/'),
+    headers:{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Access-Control-Allow-Origin": "*"
+    },
+    body: jsonEncode(body),
+  );
+
+  final Map<String, dynamic> responseData = json.decode(response.body);
+
+  if(response.statusCode==201){
+    print("Successfully Registered");
+
+    var userData = responseData['data'];
+    User authUser = User.fromJson(userData);
+    /*UserPreferences().saveUser(authUser);*/
+    result = {
+      'status': true,
+      'message': 'Successfully registered',
+      'data': authUser
+    };
+  }
+  else {
+    print(response.statusCode);
+    print(response.body);
+    result = {
+      'status': false,
+      'message': 'Registration failed',
+      'data': responseData
+    };
+  }
+
+return result;
+}
+
+void signUpValidations() {
+
   if(pass!=pass2){
-    print("Passwords dont match");
+    print("Passwords don't match");
   }
   else{
-  print(email);
-  print(pass);}
+    signUpUser();
+  }
 }
 
 class EmailValidator {
