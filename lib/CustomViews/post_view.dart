@@ -1,3 +1,5 @@
+import 'package:car_pool/CustomViews/post_detail.dart';
+import 'package:car_pool/Screens/profile.dart';
 import 'package:flutter/material.dart';
 
 class PostView extends StatefulWidget{
@@ -33,7 +35,7 @@ class _PostView extends State<PostView> {
   _PostView({required this.username, required this.caption, required this.uid, required this.profilePhotoUrl});
 
   buildPostHeader({required String username, required String profilePhotoUrl}) {
-    return GestureDetector(
+    return InkWell(
       child: ListTile(
           leading: CircleAvatar(
               backgroundImage: NetworkImage(profilePhotoUrl),
@@ -62,73 +64,84 @@ class _PostView extends State<PostView> {
               }
             },
           )),
-      onTap: () {/* User name tapped????
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProfilePage(uid: uid),
+            builder: (context) => Profile()
           ),
         );
-      */},
+      },
     );
   }
   buildClickableBody({required String caption}) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children:<Widget>[
-        Flexible(
-          flex:2,
-            child:
-         Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Image.asset(
-                'assets/images/sedan.png',
-                //width: MediaQuery.of(context).size.width,
-                height: 150,
-                width: 300,
-                fit: BoxFit.fitWidth,
-              ),
-              Text("Sedan, 4 Seat",
-                  style: TextStyle(
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.w400,
-                      fontSize: 20))
-            ],
-         )),
-        Flexible(
-          flex:4,
-            child:
-          Column(
+    return InkWell(
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:<Widget>[
-              Text(caption,
-                  style: TextStyle(
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20)),
-              Text("Maltepe üzerinden eşyalarımı aldıktan sonra okula geçiceğim.",
-                  style: TextStyle(
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.normal,
-                      fontSize: 12)),
-            ]
-          ) ),
-        Flexible(
-        flex:2,
-        child:
-          Column(children:<Widget>[
-            Text("1 Available Seat",
-              style: TextStyle(
-                  color: Colors.grey[800],
-                  fontWeight: FontWeight.normal,
-                  fontSize: 12)),
-              TextButton(onPressed: (){
-              //MAKE Reservation check choose
-              }, child: Text('Rezervasyon Yap')),
-          ])),
+              Flexible(
+                  flex:2,
+                  child:
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/images/sedan.png',
+                        //width: MediaQuery.of(context).size.width,
+                        height: 150,
+                        width: 300,
+                        fit: BoxFit.fitWidth,
+                      ),
+                      Text("Sedan, 4 Seat",
+                          style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w400,
+                              fontSize: 20))
+                    ],
+                  )),
+              Flexible(
+                  flex:4,
+                  child:
+                  Column(
+                      children:<Widget>[
+                        Text(caption,
+                            style: TextStyle(
+                                color: Colors.grey[800],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20)),
+                        Text("Maltepe üzerinden eşyalarımı aldıktan sonra okula geçiceğim.",
+                            style: TextStyle(
+                                color: Colors.grey[800],
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12)),
+                      ]
+                  ) ),
+              Flexible(
+                  flex:2,
+                  child:
+                  Column(children:<Widget>[
+                    Text("1 Available Seat",
+                        style: TextStyle(
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12)),
+                    TextButton(onPressed: (){
+                      //MAKE Reservation check choose
+                    }, child: Text('Rezervasyon Yap')),
+                  ])),
 
-    ]
+            ]
+        ),
+      onTap: () {
+       showDialog(builder: (BuildContext context) {  
+         return Card(
+             margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/4,vertical:MediaQuery.of(context).size.height/4),
+           child: PostDetail()
+         );
+       }, context: context);
+      },
     );
+
   }
 
   @override

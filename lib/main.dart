@@ -1,8 +1,10 @@
 // @dart=2.9
 import 'package:car_pool/Screens/signup.dart';
+import 'package:car_pool/Screens/verification.dart';
 import 'package:flutter/material.dart';
 import 'Screens/feed.dart';
 import 'Screens/login.dart';
+import 'Screens/profile.dart';
 
 Size screenSize;
 void main() {
@@ -22,12 +24,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Login(),
+      home: Profile(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/feed': (context) => Feed(),
         '/login': (context) => Login(),
         '/signup': (context) => SignUp(),
+        '/verification': (context) => Verification(),
+        '/profile': (context) => Profile(),
       },
     );
   }

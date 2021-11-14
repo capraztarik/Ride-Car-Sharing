@@ -79,7 +79,7 @@ class _Feed extends State<Feed>{
           actions: <Widget>[
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
+                child: InkWell(
                   onTap: () {},
                   child: Icon(
                     Icons.search,
@@ -89,10 +89,13 @@ class _Feed extends State<Feed>{
             ),
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
-                child: TextButton(onPressed: () { logOut(); },
-                  child:
-                  Text("LogOut"),
-                )
+                child: InkWell(
+                  onTap: () {logOut();},
+                  child: Icon(
+                  Icons.logout,
+                  size: 26.0,
+                  ),
+                  )
             ),
           ],
         ),
@@ -169,9 +172,6 @@ class _Feed extends State<Feed>{
     postViewList.clear();
     await getPosts();
   }
-
-
-
   _generateView (List<PostModel> postList){
     int index = 0;
     while (index < postList.length) {
