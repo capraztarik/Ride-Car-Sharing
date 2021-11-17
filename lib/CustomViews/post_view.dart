@@ -65,12 +65,7 @@ class _PostView extends State<PostView> {
             },
           )),
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Profile()
-          ),
-        );
+        profileDialog();
       },
     );
   }
@@ -133,12 +128,7 @@ class _PostView extends State<PostView> {
             ]
         ),
       onTap: () {
-       showDialog(builder: (BuildContext context) {  
-         return Card(
-             margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/4,vertical:MediaQuery.of(context).size.height/4),
-           child: PostDetail()
-         );
-       }, context: context);
+       profileDialog();
       },
     );
 
@@ -156,6 +146,15 @@ class _PostView extends State<PostView> {
     buildClickableBody(caption: this.caption),
         ],
         ));
+  }
+
+  void profileDialog() {
+    showDialog(builder: (BuildContext context) {
+      return Card(
+          margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/6,vertical:MediaQuery.of(context).size.height/6),
+          child: PostDetail()
+      );
+    }, context: context);
   }
 
 }

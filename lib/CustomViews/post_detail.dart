@@ -8,7 +8,6 @@ class PostDetail extends StatefulWidget{
   );
 }
 class _PostDetail extends State<PostDetail> {
-
   buildProfileCard() {
     return Container(
         decoration: BoxDecoration(

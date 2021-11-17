@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:car_pool/CustomViews/post_view.dart';
 import 'package:car_pool/Models/post_model.dart';
 import 'package:flutter/material.dart';
+import 'package:car_pool/Screens/profile.dart';
 
 import 'login.dart';
 
@@ -59,17 +60,10 @@ class _Feed extends State<Feed>{
 
   @override
   Widget build(BuildContext context) {
-    if (firstLoad) {
-      return Scaffold(
-          body: SafeArea(
-            child: Center(
-                child: Container(
-                    height: 50, width: 50, child: CircularProgressIndicator())),
-          ));
-    } else {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.deepOrangeAccent,
+          automaticallyImplyLeading: false,
           title: Text(
             "Car Pool",
             style: TextStyle(
@@ -80,12 +74,27 @@ class _Feed extends State<Feed>{
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                  },
                   child: Icon(
                     Icons.search,
                     size: 26.0,
                   ),
                 )
+            ),
+            Builder(
+              builder: (context) =>Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: InkWell(
+                  onTap: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                  child: Icon(
+                    Icons.account_circle_sharp,
+                    size: 26.0,
+                  ),
+                )
+            ),
             ),
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
@@ -99,6 +108,47 @@ class _Feed extends State<Feed>{
             ),
           ],
         ),
+        endDrawer: Drawer(
+          child:ListView(
+            children: <Widget>[
+              Container(
+                height:MediaQuery.of(context).size.height/3,
+                child:Expanded(
+                  child:UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  accountEmail: Expanded(
+                            flex:1,
+                            child: Text("mesutozil@gmail.com"),
+                  ),
+                  accountName: Expanded(
+                    flex:1,
+                    child: Text("Mesut Özil"),
+                  ),
+                  currentAccountPicture: new CircleAvatar(
+                    radius: 120.0,
+                    backgroundColor: const Color(0xFF778899),
+                    backgroundImage:
+                    NetworkImage("https://i20.haber7.net/resize/1300x731//haber/haber7/photos/2021/11/devrekliler_maci_mesut_ozilin_locasindan_izledi_1615873131_6892.jpg"),
+                  ),
+                  currentAccountPictureSize: Size(144,144),
+                ),),
+              ),
+              ListTile(
+                title: Text('Driver Rating'),
+                trailing:Text('%98',style:TextStyle(color:Colors.green)),
+                // You can write the navigation code in this block of function,
+                // So you can navigate to the other page.
+              ),
+              ListTile(
+                title: Text('Edit Profile'),
+                onTap: () {},
+                // To make the list tile clickable I added empty function block
+              ),
+            ]
+        ),
+      ),
         body:SingleChildScrollView(
           child:Flex(
             direction: Axis.horizontal,
@@ -134,7 +184,7 @@ class _Feed extends State<Feed>{
             ),
           ),*/
       );
-    }
+
   }
 
   Future<void> getPosts() async {
@@ -215,3 +265,5 @@ class _Feed extends State<Feed>{
   }
 
 }
+
+

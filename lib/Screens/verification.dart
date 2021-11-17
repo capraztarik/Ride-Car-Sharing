@@ -163,6 +163,13 @@ buildVerificationCard (BuildContext context){
                   controller: textEditingController,
                   onCompleted: (code) {
                     validateUser(code);
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Feed(),
+                      ),
+                    );
                   },
                   onChanged: (value) {
                     setState(() {
@@ -260,6 +267,5 @@ Future<http.Response> validateUser(String code) async {
       'data': responseData
     };
   }
-
   return result;
 }
