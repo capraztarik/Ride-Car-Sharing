@@ -7,6 +7,8 @@ import 'package:car_pool/Screens/profile.dart';
 
 import 'login.dart';
 
+import 'package:car_pool/main.dart';
+
 class Feed extends StatefulWidget {
   @override
   _Feed createState() => _Feed();
@@ -19,6 +21,7 @@ class _Feed extends State<Feed>{
   List<PostModel> testList = [];
   ScrollController _controller = ScrollController();
 
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +32,7 @@ class _Feed extends State<Feed>{
 
   Future<void> initialFunction() async {
     await getPosts();
+    await getProfile();
   }
 
   dispose() {
@@ -108,6 +112,9 @@ class _Feed extends State<Feed>{
             ),
           ],
         ),
+        floatingActionButton: FloatingActionButton(onPressed: () {
+
+        },),
         endDrawer: Drawer(
           child:ListView(
             children: <Widget>[
@@ -120,11 +127,11 @@ class _Feed extends State<Feed>{
                   ),
                   accountEmail: Expanded(
                             flex:1,
-                            child: Text("mesutozil@gmail.com"),
+                            child: Text(AuthObject.userEmail),
                   ),
                   accountName: Expanded(
                     flex:1,
-                    child: Text("Mesut Özil"),
+                    child: Text(AuthObject.userName),
                   ),
                   currentAccountPicture: new CircleAvatar(
                     radius: 120.0,
@@ -143,7 +150,9 @@ class _Feed extends State<Feed>{
               ),
               ListTile(
                 title: Text('Edit Profile'),
-                onTap: () {},
+                onTap: () {
+                  editProfile();
+                },
                 // To make the list tile clickable I added empty function block
               ),
             ]
@@ -186,7 +195,25 @@ class _Feed extends State<Feed>{
       );
 
   }
-
+  Future<void> getProfile() async{
+    var tkn=AuthObject.csrf;
+    final response = await http.get(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/my-profile/'),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+    );
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    if(response.statusCode==200){
+      AuthObject.userName=responseData['first_name'] + " " +responseData['last_name'];
+      AuthObject.phoneNumber=responseData['phone_number'];
+    }
+    else {
+      print(response.statusCode);
+    }
+  }
   Future<void> getPosts() async {
     /*
       // get all post models in a alist from backend
@@ -202,16 +229,27 @@ class _Feed extends State<Feed>{
     }
     */
      //for test purposes
-    for(int i=0;i<8;i++){
+    for(int i=0;i<4;i++){
       PostModel temp=PostModel(
           username: "Lewis Hamilton",
           pid: "0",
           uid: "0",
-          caption: "Kadıköy-Sabancı",
+          location: "Kadıköy-Sabancı",
+          caption:"Maltepe üzerinden Sabancıya geçiceğim.",
           profilePhotoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/18/Lewis_Hamilton_2016_Malaysia_2.jpg",
 
     );
+      PostModel temp2=PostModel(
+        username: "Charles Leclerc",
+        pid: "0",
+        uid: "0",
+        caption:"Ataşehire eşyalarımı bırakıcağım.",
+          location: "Pendik-Ataşehir",
+        profilePhotoUrl: "https://cdn-9.motorsport.com/images/mgl/YBeNJN72/s800/charles-leclerc-ferrari-1.jpg",
+
+      );
       postModelList.add(temp);
+      postModelList.add(temp2);
     }
     _generateView(postModelList);
   }
@@ -231,6 +269,7 @@ class _Feed extends State<Feed>{
         uid: postList[index].uid ,
         caption: postList[index].caption ,
         profilePhotoUrl: postList[index].profilePhotoUrl ,
+        location:postList[index].location,
       );
       postViewList.add(temp);
       index++;
@@ -239,15 +278,15 @@ class _Feed extends State<Feed>{
 
   Future logOut() async {
     var result;
-
+    var tkn=AuthObject.csrf;
     final response = await http.post(
       Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/logout/'),
       headers:{
         'Content-Type': 'application/json; charset=UTF-8',
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
+          "Authorization":"Token $tkn",
       },
     );
-    final Map<String, dynamic> responseData = json.decode(response.body);
 
     if(response.statusCode==204){
       print("Successfully Logout");
@@ -264,6 +303,9 @@ class _Feed extends State<Feed>{
     }
   }
 
+  Future editProfile()async {
+
+  }
 }
 
 

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:car_pool/Screens/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../Constants.dart';
+import '../main.dart';
 import 'feed.dart';
 
 class Verification extends StatefulWidget {
@@ -90,6 +92,17 @@ class _verificationState extends State<Verification> {
                       SizedBox(height: sized_box_height),
                       buildVerificationCard(context),
                       SizedBox(height: sized_box_height),
+                      TextButton(
+                        onPressed: () { //Develop forget password page TODO
+                        },
+                        child: Text(
+                          'Send Verification code again',
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(0.4),
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ),
                     ],
                   )
               )
@@ -162,14 +175,8 @@ buildVerificationCard (BuildContext context){
                   errorAnimationController: errorController,
                   controller: textEditingController,
                   onCompleted: (code) {
-                    validateUser(code);
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Feed(),
-                      ),
-                    );
+                    validateUser(code,context);
+                    textEditingController.clear();
                   },
                   onChanged: (value) {
                     setState(() {
@@ -191,81 +198,72 @@ buildVerificationCard (BuildContext context){
         )
     ),);
 }
-Future<Map<String, dynamic>> verification(String email, String password) async {
-  var result;
-
-  final Map<String, dynamic> verificationData = {
-    'user': {
-      'email': email,
-      'password': password
-    }
-  };
-  final response = await http.post(
-    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/verification/'),
-    headers:{
-      'Content-Type': 'application/json; charset=UTF-8',
-      "Access-Control-Allow-Origin": "*"
-    },
-    body: jsonEncode(verificationData),
-  );
-
-  final Map<String, dynamic> responseData = json.decode(response.body);
-
-  if(response.statusCode==200){
-    print("Successfully verification");
-    var userData = responseData['data'];
-    /*User authUser = User.fromJson(userData);*/
-    /*UserPreferences().saveUser(authUser);*/
-    result = {
-      'status': true,
-      'message': 'Successfully registered',
-    };
-  }
-  else {
-    print(response.statusCode);
-    print(response.body);
-    result = {
-      'status': false,
-      'message': 'Registration failed',
-      'data': responseData
-    };
-  }
-  return result;
 }
-}
-Future<http.Response> validateUser(String code) async {
+Future<http.Response>sendNewCode() async{
+
   var result;
   var body = {
-    "verifyCode": code,
-    "email": email
+    "csrf_token":AuthObject.csrf,
   };
+
   final response = await http.post(
-    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/register/'),
+    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/verify-code/'),
     headers:{
       'Content-Type': 'application/json; charset=UTF-8',
       "Access-Control-Allow-Origin": "*"
     },
     body: jsonEncode(body),
   );
+  return result;
+}
+Future validateUser(String code,BuildContext context) async {
+  var body = {
+    "code": code,
+  };
+  var tkn=AuthObject.csrf;
+  final response = await http.post(
+    Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/verify-code/'),
+    headers:{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Access-Control-Allow-Origin": "*",
+      "Authorization":"Token $tkn",
+    },
+    body: jsonEncode(body),
+  );
 
-  final Map<String, dynamic> responseData = json.decode(response.body);
 
-  if(response.statusCode==201){
-    print("Successfully Registered");
-    var userData = responseData['data'];
-    result = {
-      'status': true,
-      'message': 'Successfully registered',
-    };
+  if(response.statusCode==200){
+    print("Successfully Verified");
+
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Feed(),
+      ),
+    );
   }
   else {
-    print(response.statusCode);
-    print(response.body);
-    result = {
-      'status': false,
-      'message': 'Registration failed',
-      'data': responseData
-    };
+    showVerificationDialog(context);
   }
-  return result;
+}
+Future<void> showVerificationDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Verification Failed'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Try Again'),
+            onPressed: () {
+              Navigator.of(context).pop();
+
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

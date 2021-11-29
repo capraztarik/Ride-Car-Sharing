@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:car_pool/Constants.dart';
 import 'package:car_pool/Models/user.dart';
+import 'package:car_pool/Screens/verification.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../main.dart';
 import 'login.dart';
 
 class SignUp extends StatefulWidget {
@@ -12,6 +14,8 @@ class SignUp extends StatefulWidget {
 }
 int attemptCount = 0;
 late String email;
+late String name;
+late String surname;
 late String pass;
 late String pass2;
  GlobalKey<FormState> _signUpKey = GlobalKey<FormState>();
@@ -145,6 +149,50 @@ buildSignUpCard (BuildContext context){
               children: <Widget>[
                 Expanded(flex:2,
                   child:TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'First Name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your first name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      name = value!;
+                    },
+                  ), ),
+                Expanded(flex:1,
+                  child: SizedBox(
+                    height: 15,
+                  ),),
+                Expanded(flex:2,
+                  child:TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Last Name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your last name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      surname = value!;
+                    },
+                  ), ),
+                Expanded(flex:1,
+                  child: SizedBox(
+                    height: 15,
+                  ),),
+                Expanded(flex:2,
+                  child:TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email Address',
@@ -227,7 +275,7 @@ buildSignUpCard (BuildContext context){
                         onPressed: () {
                           if (_signUpKey.currentState!.validate()) {
                             _signUpKey.currentState!.save();
-                            signUpValidations();
+                            signUpValidations(context);
                           }
                         },
                         color: Colors.blue,
@@ -276,10 +324,12 @@ buildSignUpCard (BuildContext context){
         )
     ),);
 }
-Future<http.Response> signUpUser() async {
+Future signUpUser(BuildContext context) async {
   var result;
 
   var body = {
+    "first_name":name,
+    "last_name":surname,
     "password": pass,
     "email": email
   };
@@ -305,15 +355,24 @@ Future<http.Response> signUpUser() async {
 
   if(response.statusCode==201){
     print("Successfully Registered");
-
     var userData = responseData['data'];
-    User authUser = User.fromJson(userData);
+    AuthObject.csrf = responseData['token'];
+    print(AuthObject.csrf);
+    AuthObject.userEmail=email;
+    print(AuthObject.userEmail);
+
     /*UserPreferences().saveUser(authUser);*/
     result = {
       'status': true,
       'message': 'Successfully registered',
-      'data': authUser
     };
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Verification(),
+      ),
+    );
   }
   else {
     print(response.statusCode);
@@ -325,16 +384,15 @@ Future<http.Response> signUpUser() async {
     };
   }
 
-return result;
 }
 
-void signUpValidations() {
+void signUpValidations(BuildContext context) {
 
   if(pass!=pass2){
     print("Passwords don't match");
   }
   else{
-    signUpUser();
+    signUpUser(context);
   }
 }
 

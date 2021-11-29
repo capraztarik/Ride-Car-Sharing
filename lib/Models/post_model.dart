@@ -4,6 +4,7 @@ class PostModel {
   final String uid;
   final String pid;
   final String caption;
+  final String location;
 
   const PostModel(
       {required this.username,
@@ -11,6 +12,7 @@ class PostModel {
         required this.pid,
         required this.profilePhotoUrl,
         required this.caption,
+        required this.location,
        });
 
   Map toJson() {
@@ -25,6 +27,7 @@ class PostModel {
         pid: json['postId'],
         profilePhotoUrl: json['profilePhotoUrl'],
         caption: json['description'],
+        location: json['location'],
     );
   }
 }

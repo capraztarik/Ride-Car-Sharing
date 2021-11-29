@@ -10,7 +10,12 @@ Size screenSize;
 void main() {
   runApp(MyApp());
 }
-
+class AuthObject{
+  static String csrf;
+  static String userName;
+  static String userEmail;
+  static String phoneNumber;
+}
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -24,14 +29,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Feed(),
+      home: Login(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/feed': (context) => Feed(),
         '/login': (context) => Login(),
         '/signup': (context) => SignUp(),
         '/verification': (context) => Verification(),
-        '/profile': (context) => Profile(),
+        /*'/profile': (context) => Profile(),*/
       },
     );
   }

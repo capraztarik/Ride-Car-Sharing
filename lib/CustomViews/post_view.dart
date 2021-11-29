@@ -7,6 +7,7 @@ class PostView extends StatefulWidget{
   final String uid;
   final String pid;
   final String caption;
+  final String location;
   final String profilePhotoUrl;
 
   const PostView(
@@ -15,6 +16,7 @@ class PostView extends StatefulWidget{
         required this.uid,
         required this.caption,
         required this.profilePhotoUrl,
+        required this.location,
       });
 
   _PostView createState() => _PostView(
@@ -22,17 +24,19 @@ class PostView extends StatefulWidget{
       caption: this.caption,
       uid: this.uid,
       profilePhotoUrl: this.profilePhotoUrl,
+    location:this.location,
      );
 }
 
 class _PostView extends State<PostView> {
   final String username;
   final String caption;
+  final String location;
   final String uid;
   final String profilePhotoUrl;
   String choosenSeat="-1";
 
-  _PostView({required this.username, required this.caption, required this.uid, required this.profilePhotoUrl});
+  _PostView({required this.username, required this.caption, required this.uid, required this.profilePhotoUrl,required this.location});
 
   buildPostHeader({required String username, required String profilePhotoUrl}) {
     return InkWell(
@@ -69,7 +73,7 @@ class _PostView extends State<PostView> {
       },
     );
   }
-  buildClickableBody({required String caption}) {
+  buildClickableBody({required String caption,required String location}) {
     return InkWell(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,12 +103,12 @@ class _PostView extends State<PostView> {
                   child:
                   Column(
                       children:<Widget>[
-                        Text(caption,
+                        Text(location,
                             style: TextStyle(
                                 color: Colors.grey[800],
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20)),
-                        Text("Maltepe üzerinden eşyalarımı aldıktan sonra okula geçiceğim.",
+                        Text(caption,
                             style: TextStyle(
                                 color: Colors.grey[800],
                                 fontWeight: FontWeight.normal,
@@ -128,7 +132,7 @@ class _PostView extends State<PostView> {
             ]
         ),
       onTap: () {
-       profileDialog();
+       postDialog();
       },
     );
 
@@ -143,16 +147,24 @@ class _PostView extends State<PostView> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
     buildPostHeader(username: this.username, profilePhotoUrl: this.profilePhotoUrl),
-    buildClickableBody(caption: this.caption),
+    buildClickableBody(caption: this.caption,location: this.location),
         ],
         ));
   }
 
+  void postDialog() {
+    showDialog(builder: (BuildContext context) {
+      return Card(
+          margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/6,vertical:MediaQuery.of(context).size.height/6),
+          child: Card()/*PostDetail()*/
+      );
+    }, context: context);
+  }
   void profileDialog() {
     showDialog(builder: (BuildContext context) {
       return Card(
           margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/6,vertical:MediaQuery.of(context).size.height/6),
-          child: PostDetail()
+          child: ProfileDialog()
       );
     }, context: context);
   }

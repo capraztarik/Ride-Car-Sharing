@@ -1,10 +1,11 @@
 import 'dart:convert';
-
+import 'package:requests/requests.dart';
 import 'package:car_pool/Screens/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../Constants.dart';
+import '../main.dart';
 import 'feed.dart';
 
 class Login extends StatefulWidget {
@@ -218,7 +219,7 @@ buildLogo(BuildContext context) {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          loginUser(context);
+                          loginUser(email,pass,context);
                         }
                       },
                       color: Colors.blue,
@@ -273,14 +274,12 @@ buildLogo(BuildContext context) {
    )
   ),);
 }
-Future<Map<String, dynamic>> login(String email, String password) async {
+Future<Map<String, dynamic>> loginUser(String email, String password,BuildContext context) async {
   var result;
 
-  final Map<String, dynamic> loginData = {
-    'user': {
-      'email': email,
-      'password': password
-    }
+  var loginData = {
+    'email': email,
+    'password': password
   };
   final response = await http.post(
     Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/login/'),
@@ -292,16 +291,26 @@ Future<Map<String, dynamic>> login(String email, String password) async {
   );
 
   final Map<String, dynamic> responseData = json.decode(response.body);
-
   if(response.statusCode==200){
     print("Successfully Login");
-    var userData = responseData['data'];
+    var userData = responseData['token'];
+    AuthObject.csrf = responseData['token'];
+    print(AuthObject.csrf);
+    AuthObject.userEmail=email;
+    print(AuthObject.userEmail);
     /*User authUser = User.fromJson(userData);*/
     /*UserPreferences().saveUser(authUser);*/
     result = {
       'status': true,
       'message': 'Successfully registered',
     };
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Feed(),
+      ),
+    );
   }
   else {
     print(response.statusCode);
@@ -314,18 +323,6 @@ Future<Map<String, dynamic>> login(String email, String password) async {
   }
 
   return result;
-}
-loginUser(context) {
-
-  print(email);
-  print(pass);
-  Navigator.pop(context);
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => Feed(),
-    ),
-  );
 }
 
 class EmailValidator {

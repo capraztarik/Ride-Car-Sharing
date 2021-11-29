@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'feed.dart';
 import 'login.dart';
-
+/*
 class Profile extends StatefulWidget {
   @override
   _Profile createState() => _Profile();
@@ -117,7 +117,7 @@ class _Profile extends State<Profile>{
       print(response.statusCode);
     }
   }
-}
+}*/
 buildProfileCard() {
   return Container(
       decoration: BoxDecoration(

@@ -8,6 +8,20 @@ class PostDetail extends StatefulWidget{
   );
 }
 class _PostDetail extends State<PostDetail> {
+  buildPostDetail(){
+
+  }
+  Widget build(BuildContext context) {
+    return buildPostDetail(
+       );
+  }
+}
+
+class ProfileDialog extends StatefulWidget{
+
+  _ProfileDialog createState() => _ProfileDialog();
+}
+class _ProfileDialog extends State<ProfileDialog> {
   buildProfileCard() {
     return Container(
         decoration: BoxDecoration(
@@ -126,6 +140,6 @@ class _PostDetail extends State<PostDetail> {
   }
   Widget build(BuildContext context) {
     return buildProfileCard(
-       );
+    );
   }
 }
