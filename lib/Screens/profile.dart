@@ -216,10 +216,6 @@ buildProfileCard() {
                 )
             ),
 
-
-
-
-
           ]
       )
   );

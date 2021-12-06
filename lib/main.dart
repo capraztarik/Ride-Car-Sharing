@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'Screens/feed.dart';
 import 'Screens/login.dart';
 import 'Screens/profile.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 Size screenSize;
 void main() {
