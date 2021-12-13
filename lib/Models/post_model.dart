@@ -1,33 +1,44 @@
 class PostModel {
-  final String profilePhotoUrl;
-  final String username;
-  final String uid;
-  final String pid;
+  final String id;
+  final Map owner;
+  final String type;
+  final String available_seats;
+  final String departure_location;
+  final String destination;
   final String caption;
-  final String location;
+  final DateTime ride_datetime;
+  final DateTime post_datetime;
+  final bool is_full;
+  final int remaining_seats;
 
   const PostModel(
-      {required this.username,
-        required this.uid,
-        required this.pid,
-        required this.profilePhotoUrl,
+      { required this.id,
+        required this.owner,
+        required this.type,
+        required this.available_seats,
+        required this.departure_location,
+        required this.destination,
         required this.caption,
-        required this.location,
+        required this.ride_datetime,
+        required this.post_datetime,
+        required this.is_full,
+        required this.remaining_seats,
        });
 
-  Map toJson() {
-    return {'username': username,
-      };
-  }
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
-        username: json['username'],
-        uid: json['ownerId'],
-        pid: json['postId'],
-        profilePhotoUrl: json['profilePhotoUrl'],
-        caption: json['description'],
-        location: json['location'],
+        id:json['id'],
+        owner:json['owner'],
+        type:json['type'],
+        available_seats:json['available_seats'],
+        departure_location:json['departure_location'],
+        destination:json['destination'],
+        caption:json['caption'],
+        ride_datetime:json['ride_datetime'],
+        post_datetime:json['post_datetime'],
+        is_full:json['is_full'],
+        remaining_seats:json['remaining_seats'],
     );
   }
 }

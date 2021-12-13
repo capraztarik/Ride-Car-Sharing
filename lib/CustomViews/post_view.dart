@@ -3,41 +3,114 @@ import 'package:car_pool/Screens/profile.dart';
 import 'package:flutter/material.dart';
 
 class PostView extends StatefulWidget{
-  final String username;
-  final String uid;
-  final String pid;
+
+  final String owner;
+  final String type;
+  final String available_seats;
+  final String departure_location;
+  final String destination;
   final String caption;
-  final String location;
+  final DateTime ride_datetime;
+  final DateTime post_datetime;
+  final bool is_full;
+  final int remaining_seats;
   final String profilePhotoUrl;
 
+
   const PostView(
-      {required this.username,
-        required this.pid,
-        required this.uid,
+      {
+        required this.owner,
+        required this.type,
+        required this.available_seats,
+        required this.departure_location,
+        required this.destination,
         required this.caption,
+        required this.ride_datetime,
+        required this.post_datetime,
+        required this.is_full,
+        required this.remaining_seats,
         required this.profilePhotoUrl,
-        required this.location,
       });
 
   _PostView createState() => _PostView(
-      username: this.username,
-      caption: this.caption,
-      uid: this.uid,
-      profilePhotoUrl: this.profilePhotoUrl,
-    location:this.location,
+    owner: this.owner,
+    caption: this.caption ,
+
+    type: this.type,
+    profilePhotoUrl: this.profilePhotoUrl ,
+
+    available_seats:this.available_seats,
+    departure_location:this.departure_location,
+    destination:this.destination,
+
+    ride_datetime:this.ride_datetime,
+    post_datetime:this.post_datetime,
+    is_full:this.is_full,
+    remaining_seats:this.remaining_seats,
      );
 }
 
 class _PostView extends State<PostView> {
-  final String username;
+  final String owner;
+  final String type;
+  final String available_seats;
+  final String departure_location;
+  final String destination;
   final String caption;
-  final String location;
-  final String uid;
+  final DateTime ride_datetime;
+  final DateTime post_datetime;
+  final bool is_full;
+  final int remaining_seats;
   final String profilePhotoUrl;
-  String choosenSeat="-1";
 
-  _PostView({required this.username, required this.caption, required this.uid, required this.profilePhotoUrl,required this.location});
+  _PostView({required this.owner, required this.caption, required this.type,
+    required this.available_seats,required this.departure_location,
+    required this.destination, required this.ride_datetime, required this.post_datetime,
+    required this.is_full,required this.remaining_seats,
+    required this.profilePhotoUrl,});
 
+  buildImage(String type){
+    if(type =="share-taxi"){
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.asset(
+            'assets/images/taxi.png',
+            //width: MediaQuery.of(context).size.width,
+            height: 150,
+            width: 300,
+            fit: BoxFit.fitWidth,
+          ),
+          Text("Share a Taxi Drive",
+              style: TextStyle(
+                  color: Colors.grey[800],
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20))
+        ],
+      );
+    }
+    else
+      {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.asset(
+              'assets/images/sedan.png',
+              //width: MediaQuery.of(context).size.width,
+              height: 150,
+              width: 300,
+              fit: BoxFit.fitWidth,
+            ),
+            Text("Share Personal Drive",
+                style: TextStyle(
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20))
+          ],
+        );
+      }
+
+  }
   buildPostHeader({required String username, required String profilePhotoUrl}) {
     return InkWell(
       child: ListTile(
@@ -73,37 +146,20 @@ class _PostView extends State<PostView> {
       },
     );
   }
-  buildClickableBody({required String caption,required String location}) {
+  buildClickableBody({required String caption,required String departure,required String destination,}) {
     return InkWell(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:<Widget>[
               Flexible(
                   flex:2,
-                  child:
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        'assets/images/sedan.png',
-                        //width: MediaQuery.of(context).size.width,
-                        height: 150,
-                        width: 300,
-                        fit: BoxFit.fitWidth,
-                      ),
-                      Text("Sedan, 4 Seat",
-                          style: TextStyle(
-                              color: Colors.grey[800],
-                              fontWeight: FontWeight.w400,
-                              fontSize: 20))
-                    ],
-                  )),
+                  child:buildImage(type)),
               Flexible(
                   flex:4,
                   child:
                   Column(
                       children:<Widget>[
-                        Text(location,
+                        Text(departure + "-" +destination ,
                             style: TextStyle(
                                 color: Colors.grey[800],
                                 fontWeight: FontWeight.bold,
@@ -119,13 +175,13 @@ class _PostView extends State<PostView> {
                   flex:2,
                   child:
                   Column(children:<Widget>[
-                    Text("1 Available Seat",
+                    Text(remaining_seats.toString()+" Available Seat",
                         style: TextStyle(
                             color: Colors.grey[800],
                             fontWeight: FontWeight.normal,
                             fontSize: 12)),
                     TextButton(onPressed: (){
-                      //MAKE Reservation check choose
+                      //TODO MAKE Reservation check choose
                     }, child: Text('Rezervasyon Yap')),
                   ])),
 
@@ -146,8 +202,8 @@ class _PostView extends State<PostView> {
         child:Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-    buildPostHeader(username: this.username, profilePhotoUrl: this.profilePhotoUrl),
-    buildClickableBody(caption: this.caption,location: this.location),
+    buildPostHeader(username: this.owner, profilePhotoUrl: this.profilePhotoUrl),
+    buildClickableBody(caption: this.caption,departure: this.departure_location,destination:this.destination),
         ],
         ));
   }

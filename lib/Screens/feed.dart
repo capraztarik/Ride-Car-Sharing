@@ -247,20 +247,25 @@ class _Feed extends State<Feed>{
     }
   }
   Future<void> getPosts() async {
-    /*
-      // get all post models in a alist from backend
-    final response = await http
-        .get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
-
+    var tkn=AuthObject.csrf;
+    final response = await http.get(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/posts/'),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+    );
+    final Map<String, dynamic> responseData = json.decode(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
       postModelList = list.map((model) => PostModel.fromJson(model)).toList();
       _generateView(postModelList);
-    } else {
-      throw Exception('Failed to load posts');
     }
-    */
-     //for test purposes
+    else {
+      print(response.statusCode);
+    }
+     /*for test purposes
     for(int i=0;i<4;i++){
       PostModel temp=PostModel(
           username: "Lewis Hamilton",
@@ -282,8 +287,7 @@ class _Feed extends State<Feed>{
       );
       postModelList.add(temp);
       postModelList.add(temp2);
-    }
-    _generateView(postModelList);
+    }*/
   }
 
   Future<void> _refresh() async {
@@ -296,16 +300,40 @@ class _Feed extends State<Feed>{
     int index = 0;
     while (index < postList.length) {
       PostView temp = PostView(
-        username: postList[index].username ,
-        pid: postList[index].pid ,
-        uid: postList[index].uid ,
+        owner: postList[index].owner['first_name'],
         caption: postList[index].caption ,
-        profilePhotoUrl: postList[index].profilePhotoUrl ,
-        location:postList[index].location,
+        type: postList[index].type,
+        profilePhotoUrl: postList[index].owner['profile_photo'] ,
+        available_seats:postList[index].available_seats,
+        departure_location:postList[index].departure_location,
+        destination:postList[index].destination,
+        ride_datetime:postList[index].ride_datetime,
+        post_datetime:postList[index].post_datetime,
+        is_full:postList[index].is_full,
+        remaining_seats:postList[index].remaining_seats,
       );
       postViewList.add(temp);
       index++;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 
   Future logOut() async {
