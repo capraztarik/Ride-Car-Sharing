@@ -1,9 +1,14 @@
 
+import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:car_pool/main.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+
 
 class ShareRide extends StatefulWidget{
 
@@ -15,6 +20,8 @@ class _ShareRide extends State<ShareRide> {
   late String departure;
   late String arrival;
   late String description;
+  late String seats;
+  late DateTime rideDate;
   bool status = false;
 
   GlobalKey<FormState> _rideKey = GlobalKey<FormState>();
@@ -108,6 +115,52 @@ class _ShareRide extends State<ShareRide> {
                       height: 15,
                     ),),
                   Expanded(flex:2,
+                    child:TextFormField(
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Available Seats',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.location_pin),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your available seat number';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        seats = value!;
+                      },
+                    ), ),
+                  Expanded(flex:1,
+                    child: SizedBox(
+                      height: 15,
+                    ),),
+                  Expanded(flex:2,
+                    child: DateTimePickerFormField(
+                      firstDate: DateTime.now(),
+                      inputType: InputType.both,
+                      format: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
+                      editable: false,
+                      decoration: InputDecoration(
+                          labelText: 'DateTime',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today_outlined),
+                          floatingLabelBehavior: FloatingLabelBehavior.never
+                      ),
+                      onChanged: (dt) {
+                        setState(() => rideDate = dt);
+                      },
+                      onSaved: (dt){
+                        rideDate = dt;
+                      }
+                    ),
+                  ),
+                  Expanded(flex:1,
+                    child: SizedBox(
+                      height: 15,
+                    ),),
+                  Expanded(flex:2,
                     child:Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -142,6 +195,7 @@ class _ShareRide extends State<ShareRide> {
                         onPressed: () {
                           if (_rideKey.currentState!.validate()) {
                             _rideKey.currentState!.save();
+                            createRide(context);
                           }
                         },
                         color: Colors.blue,
@@ -159,6 +213,45 @@ class _ShareRide extends State<ShareRide> {
         )
     ),
     );
+  }
+  Future createRide(BuildContext context) async {
+    var rd=rideDate.toString();
+    var type;
+    if(status==false){
+      type="share-ride-owner";
+    }
+    else{
+      type="share-taxi";
+    }
+    var body = {
+      "departure_location":departure,
+      "destination":arrival,
+      "caption": description,
+      "available_seats": seats,
+      "ride_datetime":rd,
+      "type":type,
+    };
+    var tkn=AuthObject.csrf;
+
+    final response = await http.post(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/posts/'),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+      body: jsonEncode(body),
+    );
+
+    if(response.statusCode==201){
+      print("Successfully posted");
+      //Navigator.pop(context);
+    }
+    else {
+      print(response.statusCode);
+      print(response.body);
+    }
+
   }
 
   Widget build(BuildContext context) {

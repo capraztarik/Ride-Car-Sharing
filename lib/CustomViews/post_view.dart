@@ -1,9 +1,11 @@
 import 'package:car_pool/CustomViews/post_detail.dart';
 import 'package:car_pool/Screens/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../main.dart';
 
 class PostView extends StatefulWidget{
-
+  final int id;
   final String owner;
   final String type;
   final int available_seats;
@@ -19,6 +21,7 @@ class PostView extends StatefulWidget{
 
   const PostView(
       {
+        required this.id,
         required this.owner,
         required this.type,
         required this.available_seats,
@@ -37,7 +40,7 @@ class PostView extends StatefulWidget{
     caption: this.caption ,
     profilePhotoUrl: this.profilePhotoUrl ,
     type: this.type,
-
+    id:this.id,
     available_seats:this.available_seats,
     departure_location:this.departure_location,
     destination:this.destination,
@@ -52,6 +55,7 @@ class PostView extends StatefulWidget{
 class _PostView extends State<PostView> {
   final String owner;
   final String type;
+  final int id;
   final int available_seats;
   final String departure_location;
   final String destination;
@@ -68,7 +72,8 @@ class _PostView extends State<PostView> {
     required this.available_seats,required this.departure_location,
     required this.destination, required this.ride_datetime, required this.post_datetime,
     required this.is_full,required this.remaining_seats,
-    required this.profilePhotoUrl,});
+    required this.profilePhotoUrl,
+    required this.id,});
 
   buildImage(String type){
     if(type =="share-taxi"){
@@ -189,6 +194,7 @@ class _PostView extends State<PostView> {
                             fontSize: 12)),
                     TextButton(onPressed: (){
                       //TODO MAKE Reservation check choose
+                      makeReservation(context);
                     }, child: Text('Rezervasyon Yap')),
                   ])),
 
@@ -213,6 +219,29 @@ class _PostView extends State<PostView> {
     buildClickableBody(caption: this.caption,departure: this.departure_location,destination:this.destination,ride_datetime:this.ride_datetime),
         ],
         ));
+  }
+
+  Future makeReservation(BuildContext context) async {
+
+    var tkn=AuthObject.csrf;
+
+    final response = await http.post(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/posts/'+id.toString()+"/participate/"),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+    );
+
+    if(response.statusCode==200){
+      print("Successfully reserved");
+    }
+    else {
+      print(response.statusCode);
+      print(response.body);
+    }
+
   }
 
   void postDialog() {

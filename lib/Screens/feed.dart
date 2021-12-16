@@ -44,6 +44,7 @@ class _Feed extends State<Feed>{
     /*This creates feed from list of PostCards*/
     if (postViewList != null && postViewList.length != 0) {
       return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
         controller: _controller,
         child:ListView(
           scrollDirection: Axis.vertical,
@@ -81,6 +82,18 @@ class _Feed extends State<Feed>{
             ),
           ),
           actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: InkWell(
+                  onTap: () {
+                    _refresh();
+                  },
+                  child: Icon(
+                    Icons.refresh,
+                    size: 26.0,
+                  ),
+                )
+            ),
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: InkWell(
@@ -133,22 +146,16 @@ class _Feed extends State<Feed>{
                       .of(context)
                       .size
                       .height / 3,
-                  child: Expanded(
-                    child: UserAccountsDrawerHeader(
+                  child:  UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
                         color: Colors.blue,
                       ),
-                      accountEmail: Expanded(
-                        flex: 1,
-                        child: Column(children:<Widget>[
+                      accountEmail: Column(children:<Widget>[
                           Text(AuthObject.userEmail),
                           //Text(AuthObject.phoneNumber),
                         ],
-                      ),),
-                      accountName: Expanded(
-                        flex: 1,
-                        child: Text(AuthObject.userName),
                       ),
+                      accountName: Text(AuthObject.userName),
                       currentAccountPicture: new CircleAvatar(
                         radius: 120.0,
                         backgroundColor: const Color(0xFF778899),
@@ -158,7 +165,6 @@ class _Feed extends State<Feed>{
                       ),
                       currentAccountPictureSize: Size(144, 144),
                     ),),
-                ),
                 ListTile(
                   title: Text('Driver Rating'),
                   trailing: Text('%98', style: TextStyle(color: Colors.green)),
@@ -192,13 +198,13 @@ class _Feed extends State<Feed>{
               ),
               Expanded(
                 flex: 10,
-                child: RefreshIndicator(
-                  onRefresh: _refresh,
                   child: Scrollbar(
                     controller: _controller,
                     isAlwaysShown: true,
                     showTrackOnHover: true,
-                    child: buildFeed(),
+                    child: RefreshIndicator(
+                      onRefresh: _refresh,
+                      child: buildFeed(),
                   ),
                 ),
               ),
@@ -297,7 +303,9 @@ class _Feed extends State<Feed>{
     postModelList.clear();
     postViewList.clear();
     await getPosts();
+
   }
+
   _generateView (List<PostModel> postList){
     var purl;
     int index = 0;
@@ -311,6 +319,7 @@ class _Feed extends State<Feed>{
     }
 
     PostView temp = PostView(
+        id:postList[index].id,
         owner: postList[index].owner['first_name'],
         caption: postList[index].caption ,
         type: postList[index].type,
