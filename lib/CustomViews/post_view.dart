@@ -6,12 +6,12 @@ class PostView extends StatefulWidget{
 
   final String owner;
   final String type;
-  final String available_seats;
+  final int available_seats;
   final String departure_location;
   final String destination;
   final String caption;
-  final DateTime ride_datetime;
-  final DateTime post_datetime;
+  final String ride_datetime;
+  final String post_datetime;
   final bool is_full;
   final int remaining_seats;
   final String profilePhotoUrl;
@@ -35,9 +35,8 @@ class PostView extends StatefulWidget{
   _PostView createState() => _PostView(
     owner: this.owner,
     caption: this.caption ,
-
-    type: this.type,
     profilePhotoUrl: this.profilePhotoUrl ,
+    type: this.type,
 
     available_seats:this.available_seats,
     departure_location:this.departure_location,
@@ -53,15 +52,17 @@ class PostView extends StatefulWidget{
 class _PostView extends State<PostView> {
   final String owner;
   final String type;
-  final String available_seats;
+  final int available_seats;
   final String departure_location;
   final String destination;
   final String caption;
-  final DateTime ride_datetime;
-  final DateTime post_datetime;
+  final String ride_datetime;
+  final String post_datetime;
   final bool is_full;
   final int remaining_seats;
   final String profilePhotoUrl;
+
+
 
   _PostView({required this.owner, required this.caption, required this.type,
     required this.available_seats,required this.departure_location,
@@ -146,7 +147,8 @@ class _PostView extends State<PostView> {
       },
     );
   }
-  buildClickableBody({required String caption,required String departure,required String destination,}) {
+  buildClickableBody({required String caption,required String departure,required String destination,required String ride_datetime,}) {
+    DateTime rideDate =DateTime.parse(ride_datetime);
     return InkWell(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,6 +161,11 @@ class _PostView extends State<PostView> {
                   child:
                   Column(
                       children:<Widget>[
+                        Text(rideDate.toString().substring(0,16),
+                            style: TextStyle(
+                                color: Colors.grey[800],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20)),
                         Text(departure + "-" +destination ,
                             style: TextStyle(
                                 color: Colors.grey[800],
@@ -203,7 +210,7 @@ class _PostView extends State<PostView> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
     buildPostHeader(username: this.owner, profilePhotoUrl: this.profilePhotoUrl),
-    buildClickableBody(caption: this.caption,departure: this.departure_location,destination:this.destination),
+    buildClickableBody(caption: this.caption,departure: this.departure_location,destination:this.destination,ride_datetime:this.ride_datetime),
         ],
         ));
   }

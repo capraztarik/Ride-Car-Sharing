@@ -1,13 +1,13 @@
 class PostModel {
-  final String id;
+  final int id;
   final Map owner;
   final String type;
-  final String available_seats;
+  final int available_seats;
   final String departure_location;
   final String destination;
   final String caption;
-  final DateTime ride_datetime;
-  final DateTime post_datetime;
+  final String ride_datetime;
+  final String post_datetime;
   final bool is_full;
   final int remaining_seats;
 

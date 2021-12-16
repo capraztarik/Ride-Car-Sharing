@@ -256,10 +256,12 @@ class _Feed extends State<Feed>{
         "Authorization":"Token $tkn",
       },
     );
-    final Map<String, dynamic> responseData = json.decode(response.body);
+    final List<dynamic> responseData = json.decode(response.body);
+    print(responseData);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
       postModelList = list.map((model) => PostModel.fromJson(model)).toList();
+
       _generateView(postModelList);
     }
     else {
@@ -297,13 +299,22 @@ class _Feed extends State<Feed>{
     await getPosts();
   }
   _generateView (List<PostModel> postList){
+    var purl;
     int index = 0;
     while (index < postList.length) {
-      PostView temp = PostView(
+
+      if(postList[index].owner['profile_photo'] !=null){
+        purl= postList[index].owner['profile_photo'];
+    }
+    else{
+        purl = "https://cdn.sporx.com/img/59/2021/image23-1630500411.jpg";
+    }
+
+    PostView temp = PostView(
         owner: postList[index].owner['first_name'],
         caption: postList[index].caption ,
         type: postList[index].type,
-        profilePhotoUrl: postList[index].owner['profile_photo'] ,
+        profilePhotoUrl: purl ,
         available_seats:postList[index].available_seats,
         departure_location:postList[index].departure_location,
         destination:postList[index].destination,
