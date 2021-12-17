@@ -245,7 +245,7 @@ class _ShareRide extends State<ShareRide> {
 
     if(response.statusCode==201){
       print("Successfully posted");
-      //Navigator.pop(context);
+      Navigator.pop(context);
     }
     else {
       print(response.statusCode);

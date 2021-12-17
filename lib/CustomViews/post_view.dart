@@ -148,7 +148,7 @@ class _PostView extends State<PostView> {
             },
           )),
       onTap: () {
-        profileDialog();
+        profileDialog(username,profilePhotoUrl);
       },
     );
   }
@@ -252,13 +252,129 @@ class _PostView extends State<PostView> {
       );
     }, context: context);
   }
-  void profileDialog() {
+  void profileDialog(String username,  String profilePhotoUrl) {
     showDialog(builder: (BuildContext context) {
       return Card(
           margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/6,vertical:MediaQuery.of(context).size.height/6),
-          child: ProfileDialog()
+          child: buildProfileCard( username,   profilePhotoUrl)
       );
     }, context: context);
+  }
+  Container buildProfileCard(String username, String profilePhotoUrl) {
+    return Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.lightBlueAccent, Colors.blueAccent]
+            )
+        ),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                flex:3,
+                child:  Container(
+                  width: 200.0,
+                  height: 200.0,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff7c94b6),
+                    image: DecorationImage(
+                      image: NetworkImage(profilePhotoUrl),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.all( Radius.circular(50.0)),
+                    border: Border.all(
+                      color: Colors.red,
+                      width: 4.0,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex:1,
+                child: Text(
+                  username,
+                  style: TextStyle(
+                    fontSize: 34,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex:2,
+                child: Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10.0,vertical: 50.0),
+                  clipBehavior: Clip.antiAlias,
+                  color: Colors.white,
+                  elevation: 5.0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 8.0),
+                    child: Row(
+                        children: <Widget>[
+                          Expanded(
+                              flex:1,
+                              child:Text(
+                                "Total Rides",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                          ),
+                          Expanded(
+                              flex:1,
+                              child:Text(
+                                "50",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              )
+                          ),
+                          Expanded(
+                              flex:1,
+                              child:Text(
+                                "Driver Rating",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                          ),
+                          Expanded(
+                              flex:1,
+                              child:Text(
+                                "%97",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              )
+                          ),
+                        ]
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                  flex:1,
+                  child: SizedBox(
+                      height:10
+                  )
+              ),
+
+
+
+
+
+            ]
+        )
+    );
   }
 
 }

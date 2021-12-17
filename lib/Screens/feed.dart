@@ -18,8 +18,10 @@ class Feed extends StatefulWidget {
 
 class _Feed extends State<Feed>{
   List<PostView> postViewList = [];
+  List<PostView> previusRidesViewList = [];
   List<PostModel> postModelList = [];
   bool firstLoad = true;
+  bool refresh =false;
   List<PostModel> testList = [];
   ScrollController _controller = ScrollController();
 
@@ -43,14 +45,14 @@ class _Feed extends State<Feed>{
   buildFeed() {
     /*This creates feed from list of PostCards*/
     if (postViewList != null && postViewList.length != 0) {
-      return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-        controller: _controller,
-        child:ListView(
+      return ListView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
         children: postViewList,
-        ));
+        );
     } else if (postViewList.length == 0) {
       return Center(
         child: Text(
@@ -67,18 +69,22 @@ class _Feed extends State<Feed>{
 
   @override
   Widget build(BuildContext context) {
-    if(firstLoad){
+    if(firstLoad || refresh){
       return Card();
     }
     else {
       return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.deepOrangeAccent,
+          centerTitle: true,
+          backgroundColor: Colors.blue,
           automaticallyImplyLeading: false,
           title: Text(
-            "Car Pool",
+            "RIDE",
             style: TextStyle(
-              color: Colors.black87,
+              fontSize: 30.0,
+              letterSpacing:3,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           actions: <Widget>[
@@ -185,47 +191,44 @@ class _Feed extends State<Feed>{
                   },
                   // To make the list tile clickable I added empty function block
                 ),
+                /*TODO ListView(
+                children: peviusRideViewList,
+                   ),*/
+
               ]
           ),
         ),
-        body: SingleChildScrollView(
-          child: Flex(
-            direction: Axis.horizontal,
-            children: [
+        /*body: RefreshIndicator(
+          onRefresh: _refresh,
+          child:Flex(
+              direction: Axis.horizontal,
+              children: [
               Expanded(
                 flex: 2,
                 child: Card(),
               ),
               Expanded(
                 flex: 10,
-                  child: Scrollbar(
-                    controller: _controller,
-                    isAlwaysShown: true,
-                    showTrackOnHover: true,
-                    child: RefreshIndicator(
-                      onRefresh: _refresh,
-                      child: buildFeed(),
+                  child: buildFeed(),
                   ),
-                ),
-              ),
               Expanded(
                 flex: 2,
                 child: Card(),
               ),
             ],
           ),
-        ),
-        /*body: Padding(
+        ),*/
+        body: Padding(
           padding: EdgeInsets.fromLTRB(100,0,100,0),
           child: RefreshIndicator(
               onRefresh: _refresh,
               child: buildFeed(),
             ),
-          ),*/
+          ),
       );
     }
   }
-  void shareDialog() {
+  void shareDialog() async {
     showDialog(builder: (BuildContext context) {
       return Card(
           margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/3,vertical:MediaQuery.of(context).size.height/8),
@@ -297,13 +300,40 @@ class _Feed extends State<Feed>{
       postModelList.add(temp2);
     }*/
   }
+  Future<void> getPreviousRides() async {
+    var tkn=AuthObject.csrf;
+    final response = await http.get(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/posts/'),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+    );
+    final List<dynamic> responseData = json.decode(response.body);
+    print(responseData);
+    if (response.statusCode == 200) {
+      Iterable list = json.decode(response.body);
+      postModelList = list.map((model) => PostModel.fromJson(model)).toList(); //TODO Create prev ride Model and fromJson method
 
+      _generateView(postModelList);
+    }
+    else {
+      print(response.statusCode);
+    }
+
+  }
   Future<void> _refresh() async {
     print("refresh");
     postModelList.clear();
     postViewList.clear();
+    setState(() {
+      refresh = true;
+    });
     await getPosts();
-
+    setState(() {
+      refresh = false;
+    });
   }
 
   _generateView (List<PostModel> postList){
