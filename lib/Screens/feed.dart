@@ -6,6 +6,7 @@ import 'package:car_pool/CustomViews/post_view.dart';
 import 'package:car_pool/Models/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:car_pool/Screens/profile.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 
 import 'login.dart';
 
@@ -17,9 +18,10 @@ class Feed extends StatefulWidget {
 }
 
 class _Feed extends State<Feed>{
+  late SearchBar searchBar;
   List<PostView> postViewList = [];
-  List<PostView> previusRidesViewList = [];
   List<PostModel> postModelList = [];
+  List<dynamic> prevRideJson=[];
   bool firstLoad = true;
   bool refresh =false;
   List<PostModel> testList = [];
@@ -32,6 +34,119 @@ class _Feed extends State<Feed>{
     initialFunction().whenComplete(() => setState(() {
       firstLoad = false;
     }));
+    searchBar = new SearchBar(
+        inBar: false,
+        setState: setState,
+        onSubmitted: onSubmitted,
+        buildDefaultAppBar: buildAppBar
+    );
+  }
+  Future onSubmitted(String value) async {
+    var tkn=AuthObject.csrf;
+
+    final response = await http.get(
+      Uri.parse('http://ride-share-cs308.herokuapp.com/api/posts/?destination='+value),
+      headers:{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+        "Authorization":"Token $tkn",
+      },
+    );
+
+    if(response.statusCode==200){
+
+      print("Successfully search");
+      final List<dynamic> responseData = json.decode(response.body);
+      print(responseData);
+
+      postModelList.clear();
+      postViewList.clear();
+      setState(() {
+        refresh = true;
+      });
+      Iterable list = json.decode(response.body);
+      postModelList = list.map((model) => PostModel.fromJson(model)).toList();
+
+      await _generateView(postModelList);
+      await getProfile();
+
+      setState(() {
+        refresh = false;
+      });
+    }
+    else {
+      print(response.statusCode);
+      print(response.body);
+    }
+
+  }
+  AppBar buildAppBar(BuildContext context) {
+    return new AppBar(
+      centerTitle: true,
+      backgroundColor: Colors.blue,
+      automaticallyImplyLeading: false,
+      title: Text(
+        "RIDE",
+        style: TextStyle(
+          fontSize: 30.0,
+          letterSpacing:3,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      actions: <Widget>[
+        Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: InkWell(
+              onTap: () {
+                _refresh();
+              },
+              child: Icon(
+                Icons.refresh,
+                size: 26.0,
+              ),
+            )
+        ),
+        Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: searchBar.getSearchAction(context)
+          /*InkWell(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.search,
+                    size: 26.0,
+                  ),
+                )*/
+        ),
+        Builder(
+          builder: (context) =>
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: InkWell(
+                    onTap: () {
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                    child: Icon(
+                      Icons.account_circle_sharp,
+                      size: 26.0,
+                    ),
+                  )
+              ),
+        ),
+        Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: InkWell(
+              onTap: () {
+                logOut();
+              },
+              child: Icon(
+                Icons.logout,
+                size: 26.0,
+              ),
+            )
+        ),
+      ],
+    );
   }
 
   Future<void> initialFunction() async {
@@ -74,71 +189,7 @@ class _Feed extends State<Feed>{
     }
     else {
       return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Colors.blue,
-          automaticallyImplyLeading: false,
-          title: Text(
-            "RIDE",
-            style: TextStyle(
-              fontSize: 30.0,
-              letterSpacing:3,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          actions: <Widget>[
-            Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: InkWell(
-                  onTap: () {
-                    _refresh();
-                  },
-                  child: Icon(
-                    Icons.refresh,
-                    size: 26.0,
-                  ),
-                )
-            ),
-            Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: InkWell(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.search,
-                    size: 26.0,
-                  ),
-                )
-            ),
-            Builder(
-              builder: (context) =>
-                  Padding(
-                      padding: EdgeInsets.only(right: 20.0),
-                      child: InkWell(
-                        onTap: () {
-                          Scaffold.of(context).openEndDrawer();
-                        },
-                        child: Icon(
-                          Icons.account_circle_sharp,
-                          size: 26.0,
-                        ),
-                      )
-                  ),
-            ),
-            Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: InkWell(
-                  onTap: () {
-                    logOut();
-                  },
-                  child: Icon(
-                    Icons.logout,
-                    size: 26.0,
-                  ),
-                )
-            ),
-          ],
-        ),
+        appBar: searchBar.build(context),
         floatingActionButton: FloatingActionButton(
           child:Icon(Icons.add,),
           onPressed: () {
@@ -167,7 +218,7 @@ class _Feed extends State<Feed>{
                         backgroundColor: const Color(0xFF778899),
                         backgroundImage:
                         NetworkImage(
-                            "https://i20.haber7.net/resize/1300x731//haber/haber7/photos/2021/11/devrekliler_maci_mesut_ozilin_locasindan_izledi_1615873131_6892.jpg"),
+                            photoUrl),
                       ),
                       currentAccountPictureSize: Size(144, 144),
                     ),),
@@ -191,9 +242,19 @@ class _Feed extends State<Feed>{
                   },
                   // To make the list tile clickable I added empty function block
                 ),
-                /*TODO ListView(
-                children: peviusRideViewList,
-                   ),*/
+                ListTile(
+                  title: Text('Joined Rides',
+                  style:TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26
+                  )),
+                ),
+                ListView(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                children: previusRidesViewList(prevRideJson),
+                   ),
 
               ]
           ),
@@ -250,6 +311,8 @@ class _Feed extends State<Feed>{
     if(response.statusCode==200){
       AuthObject.userName=responseData['first_name'] + " " +responseData['last_name'];
       AuthObject.phoneNumber=responseData['phone_number'];
+      photoUrl=responseData['profile_photo'];
+      prevRideJson=responseData['previous_rides'];
     }
     else {
       print(response.statusCode);
@@ -331,6 +394,7 @@ class _Feed extends State<Feed>{
       refresh = true;
     });
     await getPosts();
+    await getProfile();
     setState(() {
       refresh = false;
     });
@@ -362,7 +426,10 @@ class _Feed extends State<Feed>{
         is_full:postList[index].is_full,
         remaining_seats:postList[index].remaining_seats,
       );
-      postViewList.add(temp);
+      setState(() {
+        postViewList.add(temp);
+      });
+
       index++;
     }
 
@@ -442,6 +509,7 @@ String profile_photo="";
 String currentpass="";
 String newpass="";
 String newpass2="";
+String photoUrl="";
 
 class EditProfileDialog extends StatefulWidget{
 
@@ -456,18 +524,31 @@ class _EditProfileDialog extends State<EditProfileDialog> {
         children: <Widget>[
           Expanded(flex:2,
             child:TextFormField(
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.url,
+              decoration: InputDecoration(
+                labelText: 'Your Profile Picture URL',
+                hintText:photoUrl ,
+                helperText:photoUrl,
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.photo),
+              ),
+              onSaved: (value) {
+                photoUrl = value!;
+              },
+            ),),
+          Expanded(flex:1,
+            child:SizedBox(
+              height: sized_box_height,
+            ),),
+          Expanded(flex:2,
+            child:TextFormField(
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: 'First Name',
+                helperText:first_name ,
                 border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.account_circle),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your first-name';
-                }
-                return null;
-              },
               onSaved: (value) {
                 first_name = value!;
               },
@@ -479,18 +560,12 @@ class _EditProfileDialog extends State<EditProfileDialog> {
           Expanded(flex:2,
             child:TextFormField(
               keyboardType: TextInputType.visiblePassword,
-              obscureText: false,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Last Name',
+                helperText:last_name ,
                 border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.account_circle),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your Last-name';
-                }
-                return null;
-              },
               onSaved: (value) {
                 last_name = value!;
               },
@@ -501,19 +576,13 @@ class _EditProfileDialog extends State<EditProfileDialog> {
             ),),
           Expanded(flex:2,
             child:TextFormField(
-              keyboardType: TextInputType.visiblePassword,
-              obscureText: false,
-              decoration: const InputDecoration(
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
                 labelText: 'Phone Number',
+                helperText:phoneNumber ,
                 border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.phone_rounded),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your phone number';
-                }
-                return null;
-              },
               onSaved: (value) {
                 phoneNumber = value!;
               },
@@ -532,10 +601,8 @@ class _EditProfileDialog extends State<EditProfileDialog> {
               ),
               child: MaterialButton(
                 onPressed: () {
-                  if (_editKey.currentState!.validate()) {
-                    _editKey.currentState!.save();
-                    UpdateProfile(first_name,last_name,phoneNumber,context);
-                  }
+                  _editKey.currentState!.save();
+                  UpdateProfile(first_name,last_name,phoneNumber,photoUrl,context);
                 },
                 color: Colors.blue,
                 child: Text(
@@ -563,12 +630,21 @@ class _EditProfileDialog extends State<EditProfileDialog> {
 
 }
 
-Future UpdateProfile(String name,String name2,String phoneNumber, BuildContext context) async {
-  var updateData = {
-    'first_name': name,
-    'last_name': name2,
-    'phone_number':phoneNumber,
-  };
+Future UpdateProfile(String name,String name2,String phoneNumber,String photoUrl, BuildContext context) async {
+  var updateData = {};
+  if(name!=""){
+    updateData['first_name']= name;
+  }
+  if(name2!=""){
+    updateData['last_name']= name2;
+  }
+  if(phoneNumber!=""){
+    updateData['phone_number']= phoneNumber;
+  }
+  if(photoUrl!=""){
+    updateData['profile_photo']= photoUrl;
+  }
+
   var tkn=AuthObject.csrf;
   final response = await http.patch(
     Uri.parse('http://ride-share-cs308.herokuapp.com/api/users/my-profile/'),
@@ -583,7 +659,7 @@ Future UpdateProfile(String name,String name2,String phoneNumber, BuildContext c
   final Map<String, dynamic> responseData = json.decode(response.body);
   if(response.statusCode==200){
     print("Successfully changed");
-    AuthObject.csrf = responseData['token'];
+   // AuthObject.csrf = responseData['token'];
     print(AuthObject.csrf);
     AuthObject.userEmail=email;
     print(AuthObject.userEmail);
@@ -599,6 +675,42 @@ Future UpdateProfile(String name,String name2,String phoneNumber, BuildContext c
 
 }
 
+List<Column>  previusRidesViewList(List<dynamic> preRideList){
+  List<Column> temp=[];
+  int index=0;
+
+  while (index < preRideList.length) {
+    DateTime rideDate =DateTime.parse(preRideList[index]['ride_datetime']);
+
+    Column cl=Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children:<Widget>[
+          Text(rideDate.toString().substring(0,16),
+            style: TextStyle(
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w400,
+                fontSize: 20
+            ),),
+          Text(preRideList[index]['departure_location']+"-"+preRideList[index]['destination'],
+            style: TextStyle(
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w400,
+                fontSize: 20
+            ),),
+          Divider(
+            height: 10,
+            thickness: 2,
+            indent: 20,
+            endIndent: 0,
+            color: Colors.blue,
+          ),
+        ]
+    );
+    temp.add(cl);
+    index++;
+  }
+  return temp;
+}
 class ChangePasswordDialog extends StatefulWidget{
 
   _ChangePasswordDialog createState() => _ChangePasswordDialog();
