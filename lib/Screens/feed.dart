@@ -193,7 +193,7 @@ class _Feed extends State<Feed>{
         floatingActionButton: FloatingActionButton(
           child:Icon(Icons.add,),
           onPressed: () {
-              shareDialog();
+              shareDialog() ;
         },),
         endDrawer: Drawer(
           child: ListView(
@@ -295,7 +295,7 @@ class _Feed extends State<Feed>{
           margin: EdgeInsets.symmetric(horizontal:MediaQuery.of(context).size.width/3,vertical:MediaQuery.of(context).size.height/8),
           child: ShareRide()
       );
-    }, context: context);
+    }, context: context).then((val){_refresh();});
   }
   Future<void> getProfile() async{
     var tkn=AuthObject.csrf;
